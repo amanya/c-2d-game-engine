@@ -101,32 +101,32 @@ struct TRACE_RESULT {
     bool collision_x;
     bool collision_y;
     bool collision_slope;
-    int pos_x;
-    int pos_y;
+    float pos_x;
+    float pos_y;
     size_t tile_x;
     size_t tile_y;
 };
 
 CollisionMap *engine_collision_map_create(u_int tile_size, Tiledef *tiledef, LayerMap *layer_map);
 void          engine_collision_map_destroy(CollisionMap *collision_map);
-void          engine_collision_map_trace(CollisionMap *collision_map, TraceResult *res, int x, int y, float vx, float vy, int width, int height);
-void          engine_collision_map_trace_step(CollisionMap *collision_map, TraceResult *res, int x, int y, float vx, float vy, int width, int height, float rvx, float rvy, int step);
+void          engine_collision_map_trace(CollisionMap *collision_map, TraceResult *res, float x, float y, float vx, float vy, int width, int height);
+void          engine_collision_map_trace_step(CollisionMap *collision_map, TraceResult *res, float x, float y, float vx, float vy, int width, int height, float rvx, float rvy, int step);
 
 // --- ENTITY ---
 
 enum entity_type {
-    NONE,
-    A,
-    B,
-    BOTH
+    ENTITY_TYPE_NONE,
+    ENTITY_TYPE_A,
+    ENTITY_TYPE_B,
+    ENTITY_TYPE_BOTH
 };
 
 enum entity_collides {
-    NEVER,
-    LITE,
-    PASSIVE,
-    ACTIVE,
-    FIXED
+    ENTITY_COLLIDES_NEVER,
+    ENTITY_COLLIDES_LITE,
+    ENTITY_COLLIDES_PASSIVE,
+    ENTITY_COLLIDES_ACTIVE,
+    ENTITY_COLLIDES_FIXED
 };
 
 struct ENTITY {
@@ -154,6 +154,7 @@ struct ENTITY {
     Animation *current_anim;
 
     System *system;
+    Game *game;
 
     u_int health;
 
@@ -171,12 +172,18 @@ struct ENTITY {
     void* (*entity_destroy_func) (Entity *ent);
 };
 
-Entity    *engine_entity_create(System *system, const char *name, int x, int y, void *(*entity_init_func)(Entity *ent, System *system), void *(*entity_update_func)(Entity *ent, System *system), void *(*entity_destroy_func)(Entity*ent));
+Entity    *engine_entity_create(Game *game, System *system, const char *name, int x, int y, void *(*entity_init_func)(Entity *ent, System *system), void *(*entity_update_func)(Entity *ent, System *system), void *(*entity_destroy_func)(Entity*ent));
 void       engine_entity_destroy(Entity *entity);
 void       engine_entity_update(Entity *entity, CollisionMap *collision_map);
 void       engine_entity_draw(Entity *entity, Game *game);
 Animation *engine_entity_add_anim(Entity *entity, const char *name, float frameTime, const u_short *sequence, size_t seq_l, bool stop);
 void       engine_entity_select_anim(Entity *entity, const char *name);
+bool       engine_entity_touches(Entity *entity, Entity *other);
+float      engine_entity_distance_to(Entity *entity, Entity *other);
+void       engine_entity_check_pair(Entity *a, Entity *b);
+void       engine_entity_solve_collision(Entity *a, Entity *b);
+void       engine_entity_separate_on_x_axis(Entity *left, Entity *right, Entity *weak);
+void       engine_entity_separate_on_y_axis(Entity *top, Entity *bottom, Entity *weak);
 
 // --- ANIMATION_SHEET ---
 
@@ -294,6 +301,7 @@ void  engine_game_draw(Game *game);
 void  engine_game_update_entities(Game *game);
 void  engine_game_draw_entities(Game *game);
 void  engine_game_draw_debug(Game *game);
+void engine_game_check_entities(Game *game);
 
 // --- TEXTURE ---
 extern SDL_Renderer *engine_texture_global_renderer;

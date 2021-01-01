@@ -42,7 +42,7 @@ void engine_collision_map_destroy(CollisionMap *collision_map) {
     free(collision_map);
 }
 
-void engine_collision_map_trace(CollisionMap *collision_map, TraceResult *res, int x, int y, float vx, float vy, int width, int height) {
+void engine_collision_map_trace(CollisionMap *collision_map, TraceResult *res, float x, float y, float vx, float vy, int width, int height) {
     res->collision_x = false;
     res->collision_y = false;
     res->collision_slope = false;
@@ -74,7 +74,7 @@ void engine_collision_map_trace(CollisionMap *collision_map, TraceResult *res, i
     }
 }
 
-bool engine_collision_map_check_tile_def(CollisionMap *collision_map, TraceResult *res, int t, int x, int y, float vx, float vy, int width, int height, int tile_x, int tile_y) {
+bool engine_collision_map_check_tile_def(CollisionMap *collision_map, TraceResult *res, int t, float x, float y, float vx, float vy, int width, int height, int tile_x, int tile_y) {
     Tiledef def = collision_map->tiledef[t];
 
     float lx = (float)((tile_x + def.x1) * collision_map->tile_size);
@@ -104,8 +104,8 @@ bool engine_collision_map_check_tile_def(CollisionMap *collision_map, TraceResul
             return solid || val < 0.5f;
         }
 
-        res->pos_x = (int)((float)x + vx - px);
-        res->pos_y = (int)((float)y + vy - py);
+        res->pos_x = (float)x + vx - px;
+        res->pos_y = (float)y + vy - py;
         res->collision_slope = true;
 
         return true;
@@ -113,9 +113,9 @@ bool engine_collision_map_check_tile_def(CollisionMap *collision_map, TraceResul
     return false;
 }
 
-void engine_collision_map_trace_step(CollisionMap *collision_map, TraceResult *res, int x, int y, float vx, float vy, int width, int height, float rvx, float rvy, int step) {
-    res->pos_x += (int)vx;
-    res->pos_y += (int)vy;
+void engine_collision_map_trace_step(CollisionMap *collision_map, TraceResult *res, float x, float y, float vx, float vy, int width, int height, float rvx, float rvy, int step) {
+    res->pos_x += vx;
+    res->pos_y += vy;
 
     int32_t t;
 
@@ -127,7 +127,7 @@ void engine_collision_map_trace_step(CollisionMap *collision_map, TraceResult *r
         float val1 = floorf((float)y / (float)collision_map->tile_size);
         int first_tile_y = val1 > 0 ? (int)val1 : 0;
 
-        float val2 = ceilf((float)(y + height) / (float)collision_map->tile_size);
+        float val2 = ceilf((y + (float)height) / (float)collision_map->tile_size);
         int last_tile_y = val2 < (float)collision_map->height ? (int)val2 : collision_map->height;
 
         int tile_x = (int)floorf(((float)res->pos_x + px_offset_x) / (float)collision_map->tile_size);
@@ -162,7 +162,7 @@ void engine_collision_map_trace_step(CollisionMap *collision_map, TraceResult *r
 
                     res->collision_x = true;
                     res->tile_x = t;
-                    x = res->pos_x = tile_x * collision_map->tile_size - (int)px_offset_x + (int)tile_offset_x;
+                    x = res->pos_x = (float)tile_x * (float)collision_map->tile_size - px_offset_x + tile_offset_x;
                     rvx = 0;
                     break;
                 }
@@ -177,7 +177,7 @@ void engine_collision_map_trace_step(CollisionMap *collision_map, TraceResult *r
         float val1 = floorf((float)x / (float)collision_map->tile_size);
         int first_tile_x = val1 > 0 ? (int)val1 : 0;
 
-        float val2 = ceilf((float)(x + width) / (float)collision_map->tile_size);
+        float val2 = ceilf((x + (float)width) / (float)collision_map->tile_size);
         int last_tile_x = val2 < (float)collision_map->width ? (int)val2 : collision_map->width;
 
         int tile_y = (int)floorf(((float)res->pos_y + px_offset_y) / (float)collision_map->tile_size);
@@ -211,7 +211,7 @@ void engine_collision_map_trace_step(CollisionMap *collision_map, TraceResult *r
 
                     res->collision_y = true;
                     res->tile_y = t;
-                    res->pos_y = tile_y * collision_map->tile_size - (int)px_offset_y + (int)tile_offset_y;
+                    res->pos_y = (float)tile_y * (float)collision_map->tile_size - px_offset_y + tile_offset_y;
                     break;
                 }
             }

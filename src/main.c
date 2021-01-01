@@ -7,6 +7,7 @@
 #include <stdlib.h>
 #include "engine/engine.h"
 #include "entities/player.h"
+#include "entities/npc.h"
 
 const int SCREEN_WIDTH = 320;
 const int SCREEN_HEIGHT = 200;
@@ -171,9 +172,10 @@ int main(int argc, char **argv) {
     CollisionMap *collision_map = engine_collision_map_create(32, NULL, map_layer_collision);
     game->collision_map = collision_map;
 
-    size_t num_entities = 1;
+    size_t num_entities = 2;
     Entity *entities[num_entities];
-    entities[0] = engine_entity_create(system, "player", 100, 0, (void* (*)(Entity *, System *))player_init, (void* (*)(Entity *, System *))player_update, (void* (*)(Entity *))player_destroy);
+    entities[0] = engine_entity_create(game, system, "player", 100, 0, (void* (*)(Entity *, System *))player_init, (void* (*)(Entity *, System *))player_update, (void* (*)(Entity *))player_destroy);
+    entities[1] = engine_entity_create(game, system, "npc1", 200, 0, (void* (*)(Entity *, System *))npc_init, (void* (*)(Entity *, System *))npc_update, (void* (*)(Entity *))npc_destroy);
     game->entities = entities;
     game->entities_l = num_entities;
 

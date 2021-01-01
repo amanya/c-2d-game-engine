@@ -5,6 +5,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include "engine.h"
+#include "../libs/list/list.h"
 
 Game *engine_game_create() {
     Game *game = malloc(sizeof(Game));
@@ -25,6 +26,7 @@ void engine_game_run(Game *game) {
 
 void engine_game_update(Game *game) {
     engine_game_update_entities(game);
+    engine_game_check_entities(game);
 
     int screen_width = game->system->width;
     int screen_height = game->system->height;
@@ -117,7 +119,7 @@ void engine_game_draw(Game *game) {
         }
     }
 
-    engine_game_draw_debug(game);
+    // engine_game_draw_debug(game);
 }
 
 void engine_game_update_entities(Game *game) {
@@ -142,5 +144,50 @@ void engine_game_draw_debug(Game *game) {
         SDL_SetRenderDrawColor(engine_texture_global_renderer, 0, 0, 0, 0);
         SDL_RenderDrawRect(engine_texture_global_renderer, &r);
     }
+}
+
+void engine_game_check_entities(Game *game) {
+    List entities;
+    List entities_checked;
+    list_init(&entities, NULL);
+    list_init(&entities_checked, NULL);
+
+    for (int e=0; e < game->entities_l; e++) {
+        Entity *entity = game->entities[e];
+
+        if (
+                entity->type == ENTITY_TYPE_NONE &&
+                entity->check_against == ENTITY_TYPE_NONE &&
+                entity->collides == ENTITY_COLLIDES_NEVER
+                ) {
+            continue;
+        }
+
+        list_ins_next(&entities, NULL, entity);
+    }
+
+    if (list_size(&entities) == 0) return;
+
+    for (int e=0; e < game->entities_l; e++) {
+        Entity *entity = game->entities[e];
+
+        ListItem *item = list_head(&entities);
+        do {
+            if (entity == list_data(item)) {
+                item = list_next(item);
+                continue;
+            }
+
+            if (engine_entity_touches(entity, list_data(item)) && !list_is_member(&entities_checked, item) ) {
+                list_ins_next(&entities_checked, NULL, entity);
+                engine_entity_check_pair(entity, item->data);
+            }
+
+            item = list_next(item);
+        } while (item);
+    }
+
+    list_destroy(&entities);
+    list_destroy(&entities_checked);
 }
 

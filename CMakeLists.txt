@@ -27,7 +27,7 @@ add_executable(sdlscroller
         "src/engine/animation.c"
         "src/engine/animation_sheet.c"
         "src/engine/entity.c"
-        src/engine/texture.c src/engine/input.c src/entities/player.c src/entities/player.h)
+        src/engine/texture.c src/engine/input.c src/entities/player.c src/entities/player.h src/entities/npc.h src/entities/npc.c src/libs/list/list.h src/libs/list/list.c)
 
 target_link_libraries(sdlscroller ${SDL2_LIBRARIES} ${SDL2_IMAGE_LIBRARIES} ${SDL2_TTF_LIBRARY} ${GLEW_LIBRARIES} tmx m)
 

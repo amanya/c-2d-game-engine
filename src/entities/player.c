@@ -22,6 +22,11 @@ void player_init(Entity *ent, System *system) {
     ent->gravity_factor = 1;
     ent->friction_x = 0.01f;
     ent->friction_y = 0.001f;
+    ent->bounciness = 0;
+    ent->min_bounce_velocity = 0;
+    ent->type = ENTITY_TYPE_A;
+    ent->collides = ENTITY_COLLIDES_ACTIVE;
+    ent->check_against = ENTITY_TYPE_B;
 
     Texture *texture = engine_texture_create("../assets/adventurer-v1.5-Sheet.png");
     AnimationSheet *animation_sheet = engine_animation_sheet_create(50, 37, texture);
