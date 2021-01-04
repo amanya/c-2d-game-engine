@@ -15,10 +15,10 @@ void player_init(Entity *ent, System *system) {
     ent->accel_y = 0;
     ent->max_vel_x = 0.2f;
     ent->max_vel_y = 0.8f;
-    ent->size_x = 10;
-    ent->size_y = 30;
-    ent->offset_x = 20;
-    ent->offset_y = 6;
+    ent->size_x = 24;
+    ent->size_y = 24;
+    ent->offset_x = 0;
+    ent->offset_y = 0;
     ent->gravity_factor = 1;
     ent->friction_x = 0.01f;
     ent->friction_y = 0.001f;
@@ -28,18 +28,25 @@ void player_init(Entity *ent, System *system) {
     ent->collides = ENTITY_COLLIDES_ACTIVE;
     ent->check_against = ENTITY_TYPE_B;
 
-    Texture *texture = engine_texture_create("../assets/adventurer-v1.5-Sheet.png");
-    AnimationSheet *animation_sheet = engine_animation_sheet_create(50, 37, texture);
-    ent->anim_sheet = animation_sheet;
+    Texture *texture_run = engine_texture_create("../assets/MR-Platformer-PixelAssets-v1/Main/Player/Player-Run-24x24.png");
+    Texture *texture_idle = engine_texture_create("../assets/MR-Platformer-PixelAssets-v1/Main/Player/Player-Idle-24x24.png");
+    Texture *texture_jump = engine_texture_create("../assets/MR-Platformer-PixelAssets-v1/Main/Player/Player-Jump-24x24.png");
+    Texture *texture_fall = engine_texture_create("../assets/MR-Platformer-PixelAssets-v1/Main/Player/Player-Fall-24x24.png");
 
-    const ushort sequence_walk[] = {8, 9, 10, 11, 12, 13};
-    const ushort sequence_idle[] = {0, 1, 2, 3};
-    const ushort sequence_fall[] = {17};
-    const ushort sequence_jump[] = {17};
-    engine_entity_add_anim(ent, "walk", (float)100, sequence_walk, sizeof(sequence_walk) / sizeof(sequence_walk[0]), false);
-    engine_entity_add_anim(ent, "idle", (float)100, sequence_idle, sizeof(sequence_idle) / sizeof(sequence_idle[0]), false);
-    engine_entity_add_anim(ent, "fall", (float)100, sequence_fall, sizeof(sequence_fall) / sizeof(sequence_fall[0]), false);
-    engine_entity_add_anim(ent, "jump", (float)100, sequence_jump, sizeof(sequence_jump) / sizeof(sequence_jump[0]), false);
+    AnimationSheet *animation_sheet_run = engine_animation_sheet_create(24, 24, texture_run);
+    AnimationSheet *animation_sheet_idle = engine_animation_sheet_create(24, 24, texture_idle);
+    AnimationSheet *animation_sheet_jump = engine_animation_sheet_create(24, 24, texture_jump);
+    AnimationSheet *animation_sheet_fall = engine_animation_sheet_create(24, 24, texture_fall);
+
+    const ushort sequence_walk[] = {0,1,2,3,4,5,6,7};
+    const ushort sequence_idle[] = {0,1,2,1};
+    const ushort sequence_fall[] = {0,1,2,3,4,5,6,7,8,9};
+    const ushort sequence_jump[] = {0,0,1,2,3};
+
+    engine_entity_add_anim(ent, animation_sheet_run, "walk", (float)100, sequence_walk, sizeof(sequence_walk) / sizeof(sequence_walk[0]), false);
+    engine_entity_add_anim(ent, animation_sheet_idle, "idle", (float)100, sequence_idle, sizeof(sequence_idle) / sizeof(sequence_idle[0]), false);
+    engine_entity_add_anim(ent, animation_sheet_fall, "fall", (float)100, sequence_fall, sizeof(sequence_fall) / sizeof(sequence_fall[0]), false);
+    engine_entity_add_anim(ent, animation_sheet_jump, "jump", (float)100, sequence_jump, sizeof(sequence_jump) / sizeof(sequence_jump[0]), true);
 
     engine_entity_select_anim(ent, "idle");
 

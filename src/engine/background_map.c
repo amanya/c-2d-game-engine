@@ -78,8 +78,8 @@ void engine_map_layer_draw_tile(void *image, int sx, int sy, int sw, int sh,
 }
 
 void engine_map_layer_screen_pos(LayerMap *layer_map, int x, int y) {
-    layer_map->scroll_x = x / layer_map->distance;
-    layer_map->scroll_y = y / layer_map->distance;
+    layer_map->scroll_x = (int)((float)x / layer_map->distance);
+    layer_map->scroll_y = (int)((float)y / layer_map->distance);
 }
 
 void engine_map_layer_draw(LayerMap *layer_map, System *system) {
@@ -106,12 +106,13 @@ void engine_map_layer_draw_tiled(LayerMap *layer_map, System *system) {
     int tile_offset_y = layer_map->scroll_y / layer_map->tile_size;
     int px_offset_x = layer_map->scroll_x % layer_map->tile_size;
     int px_offset_y = layer_map->scroll_y % layer_map->tile_size;
-    int px_min_x = -px_offset_x - (int)layer_map->tile_size;
-    int px_min_y = -px_offset_y - (int)layer_map->tile_size;
+    int px_min_x = -px_offset_x;
+    int px_min_y = -px_offset_y;
     int px_max_x = system->width - layer_map->tile_size - px_offset_x;
     int px_max_y = system->height - layer_map->tile_size - px_offset_y;
 
-    px_max_y += layer_map->tile_size; // draw extra tile at the bottom to prevent flickering
+    px_max_x += layer_map->tile_size * 2; // draw extra tile at the right to prevent flickering
+    px_max_y += layer_map->tile_size * 2; // draw extra tile at the bottom to prevent flickering
 
     int map_y = -1;
     for (int px_y = px_min_y; px_y <= px_max_y; px_y += layer_map->tile_size) {
@@ -129,18 +130,20 @@ void engine_map_layer_draw_tiled(LayerMap *layer_map, System *system) {
             map_x ++;
             int tile_x = map_x + tile_offset_x;
 
-            // Repeat X"?
+            // Repeat X?
             if (tile_x >= system->width || tile_x < 0) {
                 if (!layer_map->repeat) { continue; }
                 tile_x = ((tile_x % system->width) + system->width) % system->width;
             }
 
             // Draw!
-            tile = layer->content.gids[(tile_y * layer_map->tileset->map->width) + tile_x] & TMX_FLIP_BITS_REMOVAL;
+            tile = (int)layer->content.gids[(tile_y * layer_map->tileset->map->width) + tile_x] & TMX_FLIP_BITS_REMOVAL;
             if (tile > 256 || tile < 0) {
                 tile = 0;
             }
             if (tile) {
+                int apx_x = px_x;
+                int apx_y = px_y;
                 void *image;
                 u_int flags;
                 tmx_image *im = layer_map->tileset->map->tiles[tile]->image;
@@ -151,12 +154,19 @@ void engine_map_layer_draw_tiled(LayerMap *layer_map, System *system) {
                 u_int h = ts->tile_height;
                 if (im) {
                     image = im->resource_image;
+                    w = im->width;
+                    h = im->height;
+                    if(w != ts->tile_width || h != ts->tile_height) {
+                        apx_x = px_x;
+                        apx_y = px_y - h + ts->tile_height;
+                    }
+
                 }
                 else {
                     image = ts->image->resource_image;
                 }
                 flags = layer->content.gids[(tile_y * layer_map->tileset->map->width) + tile_x & ~TMX_FLIP_BITS_REMOVAL];
-                engine_map_layer_draw_tile(image, sx, sy, w, h, px_x + w, px_y + h, flags);
+                engine_map_layer_draw_tile(image, sx, sy, w, h, apx_x, apx_y, flags);
             }
         }
     }

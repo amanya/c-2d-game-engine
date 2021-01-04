@@ -34,10 +34,10 @@ void npc_init(Entity *ent, System *system) {
     const ushort sequence_idle[] = {0, 1, 2, 3};
     const ushort sequence_fall[] = {17};
     const ushort sequence_jump[] = {17};
-    engine_entity_add_anim(ent, "walk", (float)100, sequence_walk, sizeof(sequence_walk) / sizeof(sequence_walk[0]), false);
-    engine_entity_add_anim(ent, "idle", (float)100, sequence_idle, sizeof(sequence_idle) / sizeof(sequence_idle[0]), false);
-    engine_entity_add_anim(ent, "fall", (float)100, sequence_fall, sizeof(sequence_fall) / sizeof(sequence_fall[0]), false);
-    engine_entity_add_anim(ent, "jump", (float)100, sequence_jump, sizeof(sequence_jump) / sizeof(sequence_jump[0]), false);
+    //engine_entity_add_anim(ent, "walk", (float)100, sequence_walk, sizeof(sequence_walk) / sizeof(sequence_walk[0]), false);
+    //engine_entity_add_anim(ent, "idle", (float)100, sequence_idle, sizeof(sequence_idle) / sizeof(sequence_idle[0]), false);
+    //engine_entity_add_anim(ent, "fall", (float)100, sequence_fall, sizeof(sequence_fall) / sizeof(sequence_fall[0]), false);
+    //engine_entity_add_anim(ent, "jump", (float)100, sequence_jump, sizeof(sequence_jump) / sizeof(sequence_jump[0]), false);
 
     engine_entity_select_anim(ent, "idle");
 }

@@ -13,6 +13,7 @@ Game *engine_game_create() {
     game->r_screen_y = 0;
     game->screen_x = 0;
     game->screen_y = 0;
+    game->parallax_map = NULL;
 }
 
 void engine_game_destroy(Game *game) {
@@ -31,8 +32,8 @@ void engine_game_update(Game *game) {
     int screen_width = game->system->width;
     int screen_height = game->system->height;
 
-    int dx = screen_width / 4;
-    int dy = screen_height / 4;
+    int dx = screen_width / 2;
+    int dy = screen_height / 2;
 
     int cx1 = game->screen_x;
     int cx2 = game->screen_x + screen_width;
@@ -71,7 +72,7 @@ void engine_game_update(Game *game) {
         newsx = x + dx - screen_width;
     }
     if (newsx < 0) newsx = 0;
-    if (newsx > game->map_width - screen_width) newsx = game->map_width - screen_width;
+    else if (newsx > game->map_width - screen_width) newsx = game->map_width - screen_width;
 
     if (newsy < cy1 + dy) {
         newsy = y - dy;
@@ -79,7 +80,7 @@ void engine_game_update(Game *game) {
         newsy = y + dy - screen_height;
     }
     if (newsy < 0) newsy = 0;
-    if (newsy > game->map_height - screen_height) newsy = game->map_height - screen_height;
+    else if (newsy > game->map_height - screen_height) newsy = game->map_height - screen_height;
 
     int delta_x = newsx - game->screen_x;
     int delta_y = newsy - game->screen_y;
@@ -100,6 +101,8 @@ void engine_game_draw(Game *game) {
 
     game->r_screen_x = engine_system_get_draw_pos(game->system, game->screen_x);
     game->r_screen_y = engine_system_get_draw_pos(game->system, game->screen_y);
+
+    engine_parallax_map_draw(game->parallax_map, game);
 
     for(int map_index = 0; map_index < game->layer_maps_l; map_index++) {
         LayerMap *lm = game->layer_maps[map_index];

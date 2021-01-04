@@ -22,6 +22,8 @@ extern uint32_t (*engine_callback_get_time) (void);
 
 typedef struct TILESET Tileset;
 typedef struct LAYER_MAP LayerMap;
+typedef struct PARALLAX_LAYER ParallaxLayer;
+typedef struct PARALLAX_MAP ParallaxMap;
 typedef struct ENTITY Entity;
 typedef struct ANIMATION Animation;
 typedef struct ANIMATION_SHEET AnimationSheet;
@@ -84,6 +86,34 @@ void       engine_map_layer_draw_pre_rendered(LayerMap *layer_map, System *syste
 void       engine_map_layer_screen_pos(LayerMap *layer_map, int x, int y);
 tmx_layer *engine_map_layer_find_layer(tmx_map *map, const char *name);
 void       engine_map_layer_pre_render_map_to_chunks(LayerMap *layer_map, System *system);
+
+// -- PARALLAX_LAYER --
+
+struct PARALLAX_LAYER {
+    Texture *image;
+    float distance;
+    int offset_x;
+    int offset_y;
+    int scroll_x;
+    int scroll_y;
+};
+
+ParallaxLayer *engine_parallax_layer_create(const char *image_path, float distance);
+void           engine_parallax_layer_destroy(ParallaxLayer *parallax_layer);
+void           engine_parallax_layer_draw(ParallaxLayer *parallax_layer, Game *game);
+void           engine_parallax_layer_screen_pos(ParallaxLayer *parallax_layer, int x, int y);
+
+// -- PARALLAX_MAP --
+
+struct PARALLAX_MAP {
+    ParallaxLayer **layers;
+    size_t layers_l;
+};
+
+ParallaxMap *engine_parallax_map_create();
+void         engine_parallax_map_add_layer(ParallaxMap *parallax_map, const char *image_path, float distance);
+void         engine_parallax_map_draw(ParallaxMap *parallax_map, Game *game);
+void         engine_parallax_map_destroy(ParallaxMap *parallax_map);
 
 // -- COLLISION_MAP ---
 
@@ -176,7 +206,7 @@ Entity    *engine_entity_create(Game *game, System *system, const char *name, in
 void       engine_entity_destroy(Entity *entity);
 void       engine_entity_update(Entity *entity, CollisionMap *collision_map);
 void       engine_entity_draw(Entity *entity, Game *game);
-Animation *engine_entity_add_anim(Entity *entity, const char *name, float frameTime, const u_short *sequence, size_t seq_l, bool stop);
+Animation *engine_entity_add_anim(Entity *entity, AnimationSheet *animationSheet, const char *name, float frameTime, const u_short *sequence, size_t seq_l, bool stop);
 void       engine_entity_select_anim(Entity *entity, const char *name);
 bool       engine_entity_touches(Entity *entity, Entity *other);
 float      engine_entity_distance_to(Entity *entity, Entity *other);
@@ -250,8 +280,8 @@ void   engine_timer_unpause(Timer *timer);
 
 struct SYSTEM {
     u_int fps;
-    u_int width;
-    u_int height;
+    int width;
+    int height;
     u_int real_width;
     u_int real_height;
     int scale;
@@ -287,6 +317,8 @@ struct GAME {
     CollisionMap *collision_map;
     LayerMap **layer_maps;
     size_t layer_maps_l;
+
+    ParallaxMap *parallax_map;
 
     System *system;
 

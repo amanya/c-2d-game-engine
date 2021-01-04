@@ -96,6 +96,7 @@ void deinit() {
 SDL_Texture* load_texture(char *path) {
     SDL_Texture* new_texture = NULL;
 
+    printf("Loading texture: %s\n", path);
     SDL_Surface *loaded_surface = IMG_Load(path);
 
     if(loaded_surface == NULL) {
@@ -132,12 +133,6 @@ int main(int argc, char **argv) {
         return 1;
     }
 
-    SDL_Texture *sheet = load_texture("../assets/adventurer-v1.5-Sheet.png");
-
-    if(!sheet) {
-        printf("Failed to load media!\n");
-    }
-
     // engine init
     keyboard_init();
 
@@ -157,25 +152,39 @@ int main(int argc, char **argv) {
     engine_input_bind(system->input, SDLK_ESCAPE, "quit");
     engine_input_bind(system->input, SDLK_p, "pause");
 
-    Tileset *tileset = engine_tileset_create("../assets/sidescroller3.tmx");
+    Tileset *tileset = engine_tileset_create("../assets/MR-Platformer-PixelAssets-v1/map.tmx");
+    Tileset *background_tileset = engine_tileset_create("../assets/MR-Platformer-PixelAssets-v1/background.tmx");
+
+    ParallaxMap *parallax_map = engine_parallax_map_create();
+    engine_parallax_map_add_layer(parallax_map, "../assets/MR-Platformer-PixelAssets-v1/Main/Backgrounds/parallax-background-sky.png", 4);
+    engine_parallax_map_add_layer(parallax_map, "../assets/MR-Platformer-PixelAssets-v1/Main/Backgrounds/parallax-background-mountains.png", 3.5f);
+    engine_parallax_map_add_layer(parallax_map, "../assets/MR-Platformer-PixelAssets-v1/Main/Backgrounds/parallax-forest-trees-01.png", 3);
+    engine_parallax_map_add_layer(parallax_map, "../assets/MR-Platformer-PixelAssets-v1/Main/Backgrounds/parallax-forest-trees-02.png", 2.5f);
+    parallax_map->layers[0]->offset_y = 0;
+    parallax_map->layers[1]->offset_y = -10;
+    parallax_map->layers[2]->offset_y = 20;
+    parallax_map->layers[3]->offset_y = 60;
+    game->parallax_map = parallax_map;
 
     size_t num_layers = 2;
     LayerMap  *layers[num_layers];
-    layers[0] = engine_map_layer_create(32, "Ground", tileset);
+    layers[0] = engine_map_layer_create(24, "Ground", tileset);
     layers[0]->foreground = false;
-    layers[1] = engine_map_layer_create(32, "Fringe", tileset);
+    layers[1] = engine_map_layer_create(24, "Fringe", tileset);
     layers[1]->foreground = true;
     game->layer_maps = layers;
     game->layer_maps_l = num_layers;
+    game->screen_x = 0;
+    game->screen_y = 160;
 
-    LayerMap *map_layer_collision = engine_map_layer_create(32, "Collision", tileset);
-    CollisionMap *collision_map = engine_collision_map_create(32, NULL, map_layer_collision);
+    LayerMap *map_layer_collision = engine_map_layer_create(24, "Collision", tileset);
+    CollisionMap *collision_map = engine_collision_map_create(24, NULL, map_layer_collision);
     game->collision_map = collision_map;
 
-    size_t num_entities = 2;
+    size_t num_entities = 1;
     Entity *entities[num_entities];
-    entities[0] = engine_entity_create(game, system, "player", 100, 0, (void* (*)(Entity *, System *))player_init, (void* (*)(Entity *, System *))player_update, (void* (*)(Entity *))player_destroy);
-    entities[1] = engine_entity_create(game, system, "npc1", 200, 0, (void* (*)(Entity *, System *))npc_init, (void* (*)(Entity *, System *))npc_update, (void* (*)(Entity *))npc_destroy);
+    entities[0] = engine_entity_create(game, system, "player", 0, 100, (void* (*)(Entity *, System *))player_init, (void* (*)(Entity *, System *))player_update, (void* (*)(Entity *))player_destroy);
+    //entities[1] = engine_entity_create(game, system, "npc1", 200, 0, (void* (*)(Entity *, System *))npc_init, (void* (*)(Entity *, System *))npc_update, (void* (*)(Entity *))npc_destroy);
     game->entities = entities;
     game->entities_l = num_entities;
 
@@ -219,9 +228,9 @@ int main(int argc, char **argv) {
         frame_cnt++;
 
         engine_game_draw(game);
-        memset(DEBUG_BUFFER, 0, DEBUG_BUFFER_MAX_LENGTH);
+        //memset(DEBUG_BUFFER, 0, DEBUG_BUFFER_MAX_LENGTH);
         //sprintf(DEBUG_BUFFER, "fps: %f\nx: %i\ny: %i\nvel x: %f\nvel y: %f\nacc x: %f\nacc y: %f\ntick: %i", avg_fps, entities[0]->pos_x, entities[0]->pos_y, entities[0]->vel_x, entities[0]->vel_y, entities[0]->accel_x, entities[0]->accel_y, system->tick);
-        //Texture *text = engine_texture_create_from_text(DEBUG_BUFFER, BLACK);
+        //Texture *text = engine_texture_create_from_text(DEBUG_BUFFER, WHITE);
         //SDL_RendererFlip flip = SDL_FLIP_NONE;
         //SDL_Rect clip = {0, 0, text->width, text->height};
         //engine_texture_render(text, 10, 10, &clip, flip);

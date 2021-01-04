@@ -52,8 +52,8 @@ void engine_animation_draw(Animation *animation, int target_x, int target_y) {
 
     int sheet_width = animation->sheet->image->width;
 
-    sx = animation->tile * animation->sheet->width % sheet_width;
-    sy = animation->tile * animation->sheet->width / sheet_width * animation->sheet->height;
+    sx = (int)animation->tile * (int)animation->sheet->width % sheet_width;
+    sy = (int)animation->tile * (int)animation->sheet->width / sheet_width * (int)animation->sheet->height;
 
     SDL_RendererFlip flip = SDL_FLIP_NONE;
     flip += animation->flip_x ? SDL_FLIP_HORIZONTAL : SDL_FLIP_NONE;

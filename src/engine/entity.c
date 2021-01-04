@@ -150,14 +150,14 @@ void engine_entity_draw(Entity *entity, Game *game) {
     }
 }
 
-Animation *engine_entity_add_anim(Entity *entity, const char *name, float frame_time, const u_short *sequence, size_t seq_l, bool stop) {
-    Animation *a = engine_animation_create(entity->anim_sheet, name, frame_time, seq_l, sequence, stop);
+Animation *engine_entity_add_anim(Entity *entity, AnimationSheet *animationSheet, const char *name, float frame_time, const u_short *sequence, size_t seq_l, bool stop) {
+    Animation *a = engine_animation_create(animationSheet, name, frame_time, seq_l, sequence, stop);
     entity->anims_l++;
     if(entity->anims_l == 1) {
-        entity->anims = malloc(sizeof(Animation));
+        entity->anims = malloc(sizeof(Animation *));
     }
     else {
-        entity->anims = realloc(entity->anims, sizeof(Animation) * entity->anims_l);
+        entity->anims = realloc(entity->anims, sizeof(Animation *) * entity->anims_l);
     }
     entity->anims[entity->anims_l - 1] = a;
     if (!entity->current_anim) {
